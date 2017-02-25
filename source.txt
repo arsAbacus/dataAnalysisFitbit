@@ -1,0 +1,37 @@
+Sub MyMacros()
+Dim QArray As Variant
+Dim Range1 As Range
+Dim ConnectString As String
+Dim PivotName As String
+Dim Pivot1 As PivotTable
+Dim oChart As Chart
+Worksheets(1).Select
+Set Range1 = Worksheets(1).Range("A1")
+ConnectString = "DSN=Treker;"
+QArray = Array(ConnectString, "SELECT * FROM `Andrey`.`FitTrecker` WHERE `ActivityCalories` IS NOT NULL AND `Steps` IS NOT NULL   AND `Calories` IS NOT NULL  AND `ActiveMinutes` IS NOT NULL ")
+PivotName = "PT1"
+Worksheets(1).PivotTableWizard xlExternal, QArray, Range1, PivotName, BackgroundQuery:=False
+Set Pivot1 = Worksheets(1).PivotTables(PivotName)
+
+With Pivot1
+.PivotFields("Groups").Orientation = xlRowField
+.PivotFields("ActivityCalories").Orientation = xlDataField
+.PivotFields("UserID").Orientation = xlPageField
+.PivotFields("Date").Orientation = xlPageField
+End With
+ 
+ 
+ ActiveSheet.PivotTables("PT1").PivotFields("Groups").AutoSort xlDescending, _
+        "The sum of the fields ActivityCalories", ActiveSheet.PivotTables("PT1"). _
+        PivotColumnAxis.PivotLines(1), 1
+        
+        
+Set oChart = ActiveWorkbook.Charts.Add(, ActiveSheet)
+oChart.SetSourceData Source:=Range("Лист1!$A$4:$B$95")
+oChart.ChartTitle.Text = "Diagram for groups"
+oChart.Location xlLocationAsObject, "Лист1"
+
+
+MsgBox "The best team for training " & Range("A6").Value
+
+End Sub
